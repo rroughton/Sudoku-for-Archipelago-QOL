@@ -3,11 +3,18 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using Archipelago.MultiClient.Net;
+using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 
 namespace sudoku
 {
     public partial class Form1 : Form
     {
+        static readonly Random Random = new Random();
+        
+        ArchipelagoSession session;
+        DeathLinkService deathLinkService;
+
         public Form1()
         {
             InitializeComponent();
@@ -92,8 +99,8 @@ namespace sudoku
             // The hints count is based on the level player choose
             for (int i = 0; i < hintsCount; i++)
             {
-                var rX = random.Next(9);
-                var rY = random.Next(9);
+                var rX = Random.Next(9);
+                var rY = Random.Next(9);
 
                 // Style the hint cells differently and
                 // lock the cell so that player can't edit the value
@@ -116,8 +123,6 @@ namespace sudoku
             // until it finds suitable values for each cells
             findValueForNextCell(0, -1);
         }
-
-        Random random = new Random();
 
         private bool findValueForNextCell(int i, int j)
         {
@@ -148,7 +153,7 @@ namespace sudoku
                 }
 
                 // Take a random number from the numbers left in the list
-                value = numsLeft[random.Next(0, numsLeft.Count)];
+                value = numsLeft[Random.Next(0, numsLeft.Count)];
                 cells[i, j].Value = value;
 
                 // Remove the allocated value from the list
@@ -187,27 +192,28 @@ namespace sudoku
         
         private void checkButton_Click(object sender, EventArgs e)
         {
-            var wrongCells = new List<SudokuCell>();
+            bool hasError = false;
 
             // Find all the wrong inputs
             foreach (var cell in cells)
             {
                 if (!string.Equals(cell.Value.ToString(), cell.Text))
                 {
-                    wrongCells.Add(cell);
+                    hasError = true;
                 }
             }
 
             // Check if the inputs are wrong or the player wins 
-            if (wrongCells.Any())
+            if (hasError)
             {
-                // Highlight the wrong inputs 
-                wrongCells.ForEach(x => x.ForeColor = Color.Red);
                 MessageBox.Show("Wrong inputs");
             }
             else
             {
-                MessageBox.Show("You Wins");
+                MessageBox.Show("Correct, unlocked 1 hint");
+
+                var locationId = session.Locations.AllMissingLocations[Random.Next(0, session.Locations.AllMissingLocations.Count)];
+                session.Locations.ScoutLocationsAsync(true, locationId);
             }
         }
 

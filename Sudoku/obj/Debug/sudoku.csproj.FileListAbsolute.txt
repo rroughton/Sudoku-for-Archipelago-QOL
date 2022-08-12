@@ -176,3 +176,16 @@ C:\Users\anver.ali\Documents\Visual Studio 2015\Projects\Sudoku\obj\Debug\sudoku
 C:\Users\anver.ali\Documents\Visual Studio 2015\Projects\Sudoku\obj\Debug\sudoku.Properties.Resources.resources
 C:\Users\anver.ali\Documents\Visual Studio 2015\Projects\Sudoku\obj\Debug\sudoku.csproj.GenerateResource.Cache
 C:\Users\anver.ali\Documents\Visual Studio 2015\Projects\Sudoku\obj\Debug\sudoku.exe.licenses
+T:\Git\Sudoku\Sudoku\obj\Debug\sudoku.csproj.AssemblyReference.cache
+T:\Git\Sudoku\Sudoku\obj\Debug\sudoku.Form1.resources
+T:\Git\Sudoku\Sudoku\obj\Debug\sudoku.Properties.Resources.resources
+T:\Git\Sudoku\Sudoku\obj\Debug\sudoku.csproj.GenerateResource.cache
+T:\Git\Sudoku\Sudoku\obj\Debug\sudoku.exe
+T:\Git\Sudoku\Sudoku\obj\Debug\sudoku.pdb
+T:\Git\Sudoku\Sudoku\bin\Debug\Sudoku.exe.config
+T:\Git\Sudoku\Sudoku\bin\Debug\Sudoku.exe
+T:\Git\Sudoku\Sudoku\bin\Debug\Sudoku.pdb
+T:\Git\Sudoku\Sudoku\obj\Debug\Sudoku.csproj.CoreCompileInputs.cache
+T:\Git\Sudoku\Sudoku\bin\Debug\Archipelago.MultiClient.Net.dll
+T:\Git\Sudoku\Sudoku\bin\Debug\Newtonsoft.Json.dll
+T:\Git\Sudoku\Sudoku\obj\Debug\Sudoku.csproj.CopyComplete
