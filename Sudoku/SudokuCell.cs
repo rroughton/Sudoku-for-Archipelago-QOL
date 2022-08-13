@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
 
-namespace sudoku
+namespace Sudoku
 {
     class SudokuCell : Button
     {

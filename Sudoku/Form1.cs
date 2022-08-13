@@ -1,16 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Windows.Forms;
 using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
+using Archipelago.MultiClient.Net.Enums;
+using Archipelago.MultiClient.Net.Helpers;
 
-namespace sudoku
+namespace Sudoku
 {
     public partial class Form1 : Form
     {
-        static readonly Random Random = new Random();
+        const int CellSize = 75;
+
+        static readonly Random Random = new();
         
         ArchipelagoSession session;
         DeathLinkService deathLinkService;
@@ -32,22 +35,24 @@ namespace sudoku
             {
                 for (int j = 0; j < 9; j++)
                 {
+                    var cell = new SudokuCell();
+
                     // Create 81 cells for with styles and locations based on the index
-                    cells[i, j] = new SudokuCell();
-                    cells[i, j].Font = new Font(SystemFonts.DefaultFont.FontFamily, 20);
-                    cells[i, j].Size = new Size(40, 40);
-                    cells[i, j].ForeColor = SystemColors.ControlDarkDark;
-                    cells[i, j].Location = new Point(i * 40, j * 40);
-                    cells[i, j].BackColor = ((i / 3) + (j / 3)) % 2 == 0 ? SystemColors.Control : Color.LightGray;
-                    cells[i, j].FlatStyle = FlatStyle.Flat;
-                    cells[i, j].FlatAppearance.BorderColor = Color.Black;
-                    cells[i, j].X = i;
-                    cells[i, j].Y = j;
+                    cell.Font = new Font(SystemFonts.DefaultFont.FontFamily, 20);
+                    cell.Size = new Size(CellSize, CellSize);
+                    cell.ForeColor = SystemColors.ControlDarkDark;
+                    cell.Location = new Point(i * CellSize, j * CellSize);
+                    cell.BackColor = ((i / 3) + (j / 3)) % 2 == 0 ? SystemColors.Control : Color.LightGray;
+                    cell.FlatStyle = FlatStyle.Flat;
+                    cell.FlatAppearance.BorderColor = Color.Black;
+                    cell.X = i;
+                    cell.Y = j;
 
                     // Assign key press event for each cells
-                    cells[i, j].KeyPress += cell_keyPressed;
+                    cell.KeyPress += cell_keyPressed;
 
-                    panel1.Controls.Add(cells[i, j]);
+                    cells[i, j] = cell;
+                    panel1.Controls.Add(cell);
                 }
             }
         }
@@ -137,7 +142,7 @@ namespace sudoku
                     return true;
             }
 
-            var value = 0;
+            int value;
             var numsLeft = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
             // Find a random and valid number for the cell and go to the next cell 
@@ -194,42 +199,88 @@ namespace sudoku
         {
             bool hasError = false;
 
-            // Find all the wrong inputs
             foreach (var cell in cells)
-            {
                 if (!string.Equals(cell.Value.ToString(), cell.Text))
-                {
                     hasError = true;
-                }
-            }
 
-            // Check if the inputs are wrong or the player wins 
             if (hasError)
             {
-                MessageBox.Show("Wrong inputs");
+                MessageBox.Show("Wrong inputs", "Result");
             }
             else
             {
-                MessageBox.Show("Correct, unlocked 1 hint");
+                MessageBox.Show("Correct, unlocked 1 hint", "Result");
 
-                var locationId = session.Locations.AllMissingLocations[Random.Next(0, session.Locations.AllMissingLocations.Count)];
-                session.Locations.ScoutLocationsAsync(true, locationId);
+                if (session != null && session.Socket.Connected)
+                {
+                    var locationId = session.Locations.AllMissingLocations[Random.Next(0, session.Locations.AllMissingLocations.Count)];
+                    session.Locations.ScoutLocationsAsync(true, locationId);
+                }
             }
         }
 
         private void clearButton_Click(object sender, EventArgs e)
         {
             foreach (var cell in cells)
-            {
-                // Clear the cell only if it is not locked
                 if (cell.IsLocked == false)
                     cell.Clear();
-            }
         }
 
         private void newGameButton_Click(object sender, EventArgs e)
         {
             startNewGame();
+        }
+
+        private void ConnectButton_Click(object sender, EventArgs e)
+        {
+            if (session != null)
+            {
+                session = null;
+                ConnectButton.Text = "Connect";
+                UserText.Enabled = true;
+                ServerText.Enabled = true;
+                APLog.Clear();
+            }
+
+            var serverUri = ServerText.Text;
+
+            if (!serverUri.StartsWith("ws://"))
+                serverUri = "ws://" + serverUri;
+            if (!serverUri.Contains(':'))
+                serverUri += ":38281";
+            else if (!serverUri.EndsWith(':'))
+                serverUri += "38281";
+            
+            session = ArchipelagoSessionFactory.CreateSession(new Uri(serverUri));
+
+            session.MessageLog.OnMessageReceived += MessageLog_OnMessageReceived;
+
+            var result = session.TryConnectAndLogin("", UserText.Text, ItemsHandlingFlags.NoItems, tags: new[] { "BK_SUDOKU", "TEXT_ONLY" });
+
+            if (!result.Successful)
+            {
+                MessageBox.Show(string.Join(',', ((LoginFailure)result).Errors), "Login Failed");
+            }
+            else
+            {
+                ConnectButton.Text = "Disconnect";
+                UserText.Enabled = false;
+                ServerText.Enabled = false;
+            }
+        }
+
+        private void MessageLog_OnMessageReceived(Archipelago.MultiClient.Net.Helpers.LogMessage message)
+        {
+            if (message is not HintItemSendLogMessage hintMessage || hintMessage.SendingPlayerSlot != session.ConnectionInfo.Slot)
+                return;
+
+            foreach (var part in hintMessage.Parts)
+            {
+                APLog.ForeColor = part.Color;
+                APLog.Text += part.Text;
+            }
+
+            APLog.Text += '\n';
         }
     }
 }
