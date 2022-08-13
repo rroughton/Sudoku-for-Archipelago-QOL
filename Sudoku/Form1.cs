@@ -65,18 +65,30 @@ namespace Sudoku
             if (cell.IsLocked)
                 return;
 
-            int value;
-
-            // Add the pressed key value in the cell only if it is a number
-            if (int.TryParse(e.KeyChar.ToString(), out value))
+            if (e.KeyChar == '\b' && cell.Text.Length >= 1)
+                cell.Text = cell.Text.Remove(cell.Text.Length - 1);
+            else if (e.KeyChar >= '1' && e.KeyChar <= '9')
             {
-                // Clear the cell value if pressed key is zero
-                if (value == 0)
-                    cell.Clear();
-                else
-                    cell.Text = value.ToString();
+                var number = int.Parse(e.KeyChar.ToString()).ToString();
 
+                if (!cell.Text.Contains(number))
+                    cell.Text += number;
+            }
+            
+            if (cell.Text.Length <= 1)
+            {
+                cell.Font = new Font(SystemFonts.DefaultFont.FontFamily, 20);
                 cell.ForeColor = SystemColors.ControlDarkDark;
+            }
+            else if (cell.Text.Length <= 6)
+            {
+                cell.Font = new Font(SystemFonts.DefaultFont.FontFamily, 14, FontStyle.Italic);
+                cell.ForeColor = SystemColors.ControlDark;
+            }
+            else
+            {
+                cell.Font = new Font(SystemFonts.DefaultFont.FontFamily, 8, FontStyle.Italic);
+                cell.ForeColor = SystemColors.ControlDark;
             }
         }
         
@@ -244,18 +256,18 @@ namespace Sudoku
 
             var serverUri = ServerText.Text;
 
-            if (!serverUri.StartsWith("ws://"))
-                serverUri = "ws://" + serverUri;
             if (!serverUri.Contains(':'))
                 serverUri += ":38281";
-            else if (!serverUri.EndsWith(':'))
+            if (serverUri.EndsWith(':'))
                 serverUri += "38281";
-            
+            if (!serverUri.StartsWith("ws://"))
+                serverUri = "ws://" + serverUri;
+
             session = ArchipelagoSessionFactory.CreateSession(new Uri(serverUri));
 
             session.MessageLog.OnMessageReceived += MessageLog_OnMessageReceived;
 
-            var result = session.TryConnectAndLogin("", UserText.Text, ItemsHandlingFlags.NoItems, tags: new[] { "BK_SUDOKU", "TEXT_ONLY" });
+            var result = session.TryConnectAndLogin("", UserText.Text, ItemsHandlingFlags.NoItems, tags: new[] { "BK_Sudoku", "TextOnly" });
 
             if (!result.Successful)
             {

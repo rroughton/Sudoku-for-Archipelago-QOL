@@ -8,7 +8,7 @@
       "version": "1.0.0",
       "restore": {
         "projectUniqueName": "T:\\Git\\Sudoku\\Sudoku\\Sudoku.csproj",
-        "projectName": "Sudoku",
+        "projectName": "BK Sudoku",
         "projectPath": "T:\\Git\\Sudoku\\Sudoku\\Sudoku.csproj",
         "packagesPath": "C:\\Users\\jwest\\.nuget\\packages\\",
         "outputPath": "T:\\Git\\Sudoku\\Sudoku\\obj\\",

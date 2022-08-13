@@ -1,9 +1,3 @@
-T:\Git\Sudoku\Sudoku\bin\Debug\net6.0-windows\Sudoku.exe
-T:\Git\Sudoku\Sudoku\bin\Debug\net6.0-windows\Sudoku.deps.json
-T:\Git\Sudoku\Sudoku\bin\Debug\net6.0-windows\Sudoku.runtimeconfig.json
-T:\Git\Sudoku\Sudoku\bin\Debug\net6.0-windows\Sudoku.dll
-T:\Git\Sudoku\Sudoku\bin\Debug\net6.0-windows\ref\Sudoku.dll
-T:\Git\Sudoku\Sudoku\bin\Debug\net6.0-windows\Sudoku.pdb
 T:\Git\Sudoku\Sudoku\bin\Debug\net6.0-windows\Microsoft.Bcl.AsyncInterfaces.dll
 T:\Git\Sudoku\Sudoku\bin\Debug\net6.0-windows\Microsoft.Extensions.ObjectPool.dll
 T:\Git\Sudoku\Sudoku\bin\Debug\net6.0-windows\System.ComponentModel.Composition.dll
@@ -86,13 +80,18 @@ T:\Git\Sudoku\Sudoku\bin\Debug\net6.0-windows\runtimes\win\lib\net6.0\System.Ser
 T:\Git\Sudoku\Sudoku\bin\Debug\net6.0-windows\runtimes\win\lib\net6.0\System.Speech.dll
 T:\Git\Sudoku\Sudoku\bin\Debug\net6.0-windows\Archipelago.MultiClient.Net.dll
 T:\Git\Sudoku\Sudoku\bin\Debug\net6.0-windows\Newtonsoft.Json.dll
-T:\Git\Sudoku\Sudoku\obj\Debug\net6.0-windows\Sudoku.csproj.AssemblyReference.cache
 T:\Git\Sudoku\Sudoku\obj\Debug\net6.0-windows\sudoku.Form1.resources
 T:\Git\Sudoku\Sudoku\obj\Debug\net6.0-windows\Sudoku.csproj.GenerateResource.cache
 T:\Git\Sudoku\Sudoku\obj\Debug\net6.0-windows\Sudoku.GeneratedMSBuildEditorConfig.editorconfig
 T:\Git\Sudoku\Sudoku\obj\Debug\net6.0-windows\Sudoku.csproj.CoreCompileInputs.cache
 T:\Git\Sudoku\Sudoku\obj\Debug\net6.0-windows\Sudoku.csproj.CopyComplete
-T:\Git\Sudoku\Sudoku\obj\Debug\net6.0-windows\Sudoku.dll
-T:\Git\Sudoku\Sudoku\obj\Debug\net6.0-windows\ref\Sudoku.dll
-T:\Git\Sudoku\Sudoku\obj\Debug\net6.0-windows\Sudoku.pdb
 T:\Git\Sudoku\Sudoku\obj\Debug\net6.0-windows\Sudoku.genruntimeconfig.cache
+T:\Git\Sudoku\Sudoku\bin\Debug\net6.0-windows\BK Sudoku.exe
+T:\Git\Sudoku\Sudoku\bin\Debug\net6.0-windows\BK Sudoku.deps.json
+T:\Git\Sudoku\Sudoku\bin\Debug\net6.0-windows\BK Sudoku.runtimeconfig.json
+T:\Git\Sudoku\Sudoku\bin\Debug\net6.0-windows\BK Sudoku.dll
+T:\Git\Sudoku\Sudoku\bin\Debug\net6.0-windows\ref\BK Sudoku.dll
+T:\Git\Sudoku\Sudoku\bin\Debug\net6.0-windows\BK Sudoku.pdb
+T:\Git\Sudoku\Sudoku\obj\Debug\net6.0-windows\BK Sudoku.dll
+T:\Git\Sudoku\Sudoku\obj\Debug\net6.0-windows\ref\BK Sudoku.dll
+T:\Git\Sudoku\Sudoku\obj\Debug\net6.0-windows\BK Sudoku.pdb
