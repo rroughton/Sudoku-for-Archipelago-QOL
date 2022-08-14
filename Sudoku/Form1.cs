@@ -29,7 +29,7 @@ namespace Sudoku
 
         SudokuCell[,] cells = new SudokuCell[9, 9];
 
-        private void createCells()
+        void createCells()
         {
             for (int i = 0; i < 9; i++)
             {
@@ -50,6 +50,7 @@ namespace Sudoku
 
                     // Assign key press event for each cells
                     cell.KeyPress += cell_keyPressed;
+                    cell.MouseEnter += Cell_MouseEnter;
 
                     cells[i, j] = cell;
                     panel1.Controls.Add(cell);
@@ -57,9 +58,17 @@ namespace Sudoku
             }
         }
 
-        private void cell_keyPressed(object sender, KeyPressEventArgs e)
+        SudokuCell activeCell;
+
+        void Cell_MouseEnter(object sender, EventArgs e)
         {
-            var cell = sender as SudokuCell;
+            if (sender is SudokuCell sudokuCell)
+                activeCell = sudokuCell;
+        }
+
+        void cell_keyPressed(object sender, KeyPressEventArgs e)
+        {
+            var cell = activeCell;
 
             // Do nothing if the cell is locked
             if (cell.IsLocked)
@@ -83,16 +92,16 @@ namespace Sudoku
             else if (cell.Text.Length <= 6)
             {
                 cell.Font = new Font(SystemFonts.DefaultFont.FontFamily, 14, FontStyle.Italic);
-                cell.ForeColor = SystemColors.ControlDark;
+                cell.ForeColor = Color.DarkCyan;
             }
             else
             {
                 cell.Font = new Font(SystemFonts.DefaultFont.FontFamily, 8, FontStyle.Italic);
-                cell.ForeColor = SystemColors.ControlDark;
+                cell.ForeColor = Color.DarkCyan;
             }
         }
         
-        private void startNewGame()
+        void startNewGame()
         {
             loadValues();
 
@@ -101,16 +110,18 @@ namespace Sudoku
             // Assign the hints count based on the 
             // level player chosen
             if (beginnerLevel.Checked)
-                hintsCount = 45;
+                hintsCount = 55;
             else if (IntermediateLevel.Checked)
-                hintsCount = 30;
+                hintsCount = 43;
             else if (AdvancedLevel.Checked)
-                hintsCount = 15;
+                hintsCount = 20;
 
             showRandomValuesHints(hintsCount);
+
+            checkButton.Enabled = true;
         }
 
-        private void showRandomValuesHints(int hintsCount)
+        void showRandomValuesHints(int hintsCount)
         {
             // Show value in radom cells
             // The hints count is based on the level player choose
@@ -127,13 +138,15 @@ namespace Sudoku
             }
         }
 
-        private void loadValues()
+        void loadValues()
         {
             // Clear the values in each cells
             foreach (var cell in cells)
             {
                 cell.Value = 0;
                 cell.Clear();
+                cell.Font = new Font(SystemFonts.DefaultFont.FontFamily, 20);
+                cell.ForeColor = SystemColors.ControlDarkDark;
             }
 
             // This method will be called recursively 
@@ -141,7 +154,7 @@ namespace Sudoku
             findValueForNextCell(0, -1);
         }
 
-        private bool findValueForNextCell(int i, int j)
+        bool findValueForNextCell(int i, int j)
         {
             // Increment the i and j values to move to the next cell
             // and if the columsn ends move to the next row
@@ -181,7 +194,7 @@ namespace Sudoku
             return true;
         }
 
-        private bool isValidNumber(int value, int x, int y)
+        bool isValidNumber(int value, int x, int y)
         {
             for (int i = 0; i < 9; i++)
             {
@@ -207,47 +220,72 @@ namespace Sudoku
             return true;
         }
         
-        private void checkButton_Click(object sender, EventArgs e)
+        void checkButton_Click(object sender, EventArgs e)
         {
             bool hasError = false;
+            bool isFilled = true;
 
             foreach (var cell in cells)
+            {
+                if (cell.Value == 0)
+                {
+                    isFilled = false;
+                    break;
+                }
+
                 if (!string.Equals(cell.Value.ToString(), cell.Text))
+                {
                     hasError = true;
+                }
+            }
+
+            if (!isFilled)
+            {
+                MessageBox.Show("Not all fields are filled yet", "Result");
+            }
 
             if (hasError)
             {
+                if (deathLinkService != null && DeathLinkCheckBox.Checked)
+                {
+                    var deathLink = new DeathLink(session.Players.GetPlayerAlias(session.ConnectionInfo.Slot), "Failed to solve a Sudoku");
+                    deathLinkService.SendDeathLink(deathLink);
+                }
+
                 MessageBox.Show("Wrong inputs", "Result");
             }
             else
             {
-                MessageBox.Show("Correct, unlocked 1 hint", "Result");
-
                 if (session != null && session.Socket.Connected)
                 {
+                    checkButton.Enabled = false;
+
                     var locationId = session.Locations.AllMissingLocations[Random.Next(0, session.Locations.AllMissingLocations.Count)];
                     session.Locations.ScoutLocationsAsync(true, locationId);
                 }
+
+                MessageBox.Show("Correct, unlocked 1 hint", "Result");
             }
         }
 
-        private void clearButton_Click(object sender, EventArgs e)
+        void clearButton_Click(object sender, EventArgs e)
         {
             foreach (var cell in cells)
                 if (cell.IsLocked == false)
                     cell.Clear();
         }
 
-        private void newGameButton_Click(object sender, EventArgs e)
+        void newGameButton_Click(object sender, EventArgs e)
         {
             startNewGame();
         }
 
-        private void ConnectButton_Click(object sender, EventArgs e)
+        void ConnectButton_Click(object sender, EventArgs e)
         {
             if (session != null)
             {
                 session = null;
+                deathLinkService = null;
                 ConnectButton.Text = "Connect";
                 UserText.Enabled = true;
                 ServerText.Enabled = true;
@@ -263,36 +301,72 @@ namespace Sudoku
             if (!serverUri.StartsWith("ws://"))
                 serverUri = "ws://" + serverUri;
 
-            session = ArchipelagoSessionFactory.CreateSession(new Uri(serverUri));
-
-            session.MessageLog.OnMessageReceived += MessageLog_OnMessageReceived;
-
-            var result = session.TryConnectAndLogin("", UserText.Text, ItemsHandlingFlags.NoItems, tags: new[] { "BK_Sudoku", "TextOnly" });
-
-            if (!result.Successful)
+            try
             {
-                MessageBox.Show(string.Join(',', ((LoginFailure)result).Errors), "Login Failed");
+                session = ArchipelagoSessionFactory.CreateSession(new Uri(serverUri));
+                session.MessageLog.OnMessageReceived += MessageLog_OnMessageReceived;
+                var result = session.TryConnectAndLogin("", UserText.Text, ItemsHandlingFlags.NoItems,
+                    tags: new[] { "BK_Sudoku", "TextOnly" });
+
+                if (!result.Successful)
+                {
+                    MessageBox.Show(string.Join(',', ((LoginFailure)result).Errors), "Login Failed");
+                }
+                else
+                {
+                    ConnectButton.Text = "Disconnect";
+                    UserText.Enabled = false;
+                    ServerText.Enabled = false;
+
+                    deathLinkService = session.CreateDeathLinkService();
+                    deathLinkService.OnDeathLinkReceived += (deathLink) =>
+                    {
+                        startNewGame();
+                        MessageBox.Show($"DeathLink recieved from: {deathLink.Source}, reason: {deathLink.Cause}", "DeathLink");
+                    };
+                    
+                    DeathLinkCheckBox_CheckedChanged(sender, e);
+                }
             }
-            else
+            catch (Exception exception)
             {
-                ConnectButton.Text = "Disconnect";
-                UserText.Enabled = false;
-                ServerText.Enabled = false;
+                MessageBox.Show(exception.Message);
             }
         }
 
-        private void MessageLog_OnMessageReceived(Archipelago.MultiClient.Net.Helpers.LogMessage message)
+        void MessageLog_OnMessageReceived(LogMessage message)
         {
             if (message is not HintItemSendLogMessage hintMessage || hintMessage.SendingPlayerSlot != session.ConnectionInfo.Slot)
                 return;
 
-            foreach (var part in hintMessage.Parts)
+            Invoke(() =>
             {
-                APLog.ForeColor = part.Color;
-                APLog.Text += part.Text;
-            }
+                foreach (var part in hintMessage.Parts)
+                    AddToLog(part.Text, part.Color);
 
-            APLog.Text += '\n';
+                APLog.Text += Environment.NewLine;
+            });
+        }
+
+        public void AddToLog(string text, Color color)
+        {
+            APLog.SelectionStart = APLog.TextLength;
+            APLog.SelectionLength = 0;
+
+            APLog.SelectionColor = color;
+            APLog.AppendText(text);
+            APLog.SelectionColor = APLog.ForeColor;
+        }
+
+        void DeathLinkCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (session == null || deathLinkService == null)
+                return;
+
+            if (DeathLinkCheckBox.Checked)
+                deathLinkService.EnableDeathLink();
+            else
+                deathLinkService.DisableDeathLink();
         }
     }
 }

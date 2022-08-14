@@ -42,6 +42,7 @@
             this.label3 = new System.Windows.Forms.Label();
             this.UserText = new System.Windows.Forms.TextBox();
             this.ConnectButton = new System.Windows.Forms.Button();
+            this.DeathLinkCheckBox = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // panel1
@@ -191,11 +192,23 @@
             this.ConnectButton.UseVisualStyleBackColor = true;
             this.ConnectButton.Click += new System.EventHandler(this.ConnectButton_Click);
             // 
+            // DeathLinkCheckBox
+            // 
+            this.DeathLinkCheckBox.AutoSize = true;
+            this.DeathLinkCheckBox.Location = new System.Drawing.Point(1102, 659);
+            this.DeathLinkCheckBox.Name = "DeathLinkCheckBox";
+            this.DeathLinkCheckBox.Size = new System.Drawing.Size(112, 29);
+            this.DeathLinkCheckBox.TabIndex = 100;
+            this.DeathLinkCheckBox.Text = "Deathlink";
+            this.DeathLinkCheckBox.UseVisualStyleBackColor = true;
+            this.DeathLinkCheckBox.CheckedChanged += new System.EventHandler(this.DeathLinkCheckBox_CheckedChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1226, 957);
+            this.Controls.Add(this.DeathLinkCheckBox);
             this.Controls.Add(this.ConnectButton);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.UserText);
@@ -234,6 +247,7 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox UserText;
         private System.Windows.Forms.Button ConnectButton;
+        private System.Windows.Forms.CheckBox DeathLinkCheckBox;
     }
 }
 
