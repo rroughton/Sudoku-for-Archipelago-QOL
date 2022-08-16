@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
@@ -260,11 +261,21 @@ namespace Sudoku
                 {
                     checkButton.Enabled = false;
 
-                    var locationId = session.Locations.AllMissingLocations[Random.Next(0, session.Locations.AllMissingLocations.Count)];
-                    session.Locations.ScoutLocationsAsync(true, locationId);
+                    var missing = session.Locations.AllMissingLocations;
+
+                    if (missing.Any())
+                    {
+                        var locationId = missing[Random.Next(0, missing.Count)];
+                        session.Locations.ScoutLocationsAsync(true, locationId);
+
+                        MessageBox.Show("Correct, unlocked 1 hint", "Result");
+                    }
+                    else
+                    {
+                        MessageBox.Show("Correct, no missing locations left to hint for", "Result");
+                    }
                 }
 
-                MessageBox.Show("Correct, unlocked 1 hint", "Result");
             }
         }
 
