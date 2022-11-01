@@ -21,8 +21,10 @@ namespace Sudoku
 
         public Form1()
         {
-            InitializeComponent();
+            AutoScaleMode = AutoScaleMode.None;
 
+            InitializeComponent();
+            
             createCells();
 
             startNewGame();
