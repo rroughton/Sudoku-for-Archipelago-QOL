@@ -3,11 +3,13 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <OutputType>WinExe</OutputType>
 	<PublishSingleFile>true</PublishSingleFile> 
-    <SelfContained>false</SelfContained>
+    <SelfContained>true</SelfContained>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <UseWindowsForms>true</UseWindowsForms>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
     <AssemblyName>BK Sudoku</AssemblyName>
+	<PublishReadyToRun>true</PublishReadyToRun>
+	<RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
   <ItemGroup>
     <Compile Update="SudokuCell.cs" />
