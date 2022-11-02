@@ -8,8 +8,9 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
     <AssemblyName>BK Sudoku</AssemblyName>
-	<PublishReadyToRun>true</PublishReadyToRun>
+	<PublishReadyToRun>false</PublishReadyToRun>
 	<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+	<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
   </PropertyGroup>
   <ItemGroup>
     <Compile Update="SudokuCell.cs" />
