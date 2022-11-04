@@ -19,11 +19,13 @@ namespace Sudoku
         ArchipelagoSession session;
         DeathLinkService deathLinkService;
 
-        SudokuCell activeCell;
+        SudokuCell[,] cells = new SudokuCell[9, 9];
 
         public Form1()
         {
             AutoScaleMode = AutoScaleMode.None;
+            FormBorderStyle = FormBorderStyle.Fixed3D;
+            MaximizeBox = false;
 
             InitializeComponent();
             
@@ -31,8 +33,6 @@ namespace Sudoku
 
             startNewGame();
         }
-
-        SudokuCell[,] cells = new SudokuCell[9, 9];
 
         void createCells()
         {
@@ -42,7 +42,6 @@ namespace Sudoku
                 {
                     var cell = new SudokuCell();
 
-                    // Create 81 cells for with styles and locations based on the index
                     cell.Font = new Font(SystemFonts.DefaultFont.FontFamily, 20);
                     cell.Size = new Size(CellSize, CellSize);
                     cell.ForeColor = SystemColors.ControlDarkDark;
@@ -53,8 +52,8 @@ namespace Sudoku
                     cell.X = i;
                     cell.Y = j;
 
-                    // Assign key press event for each cells
                     cell.KeyPress += cell_keyPressed;
+                    cell.KeyDown += cell_keyDowned;
                     cell.MouseEnter += Cell_MouseEnter;
 
                     cells[i, j] = cell;
@@ -65,21 +64,20 @@ namespace Sudoku
 
         void Cell_MouseEnter(object sender, EventArgs e)
         {
-            if (sender is SudokuCell sudokuCell)
-                activeCell = sudokuCell;
-        }
+	        if (sender is SudokuCell sudokuCell && !UserText.Focused && !ServerText.Focused)
+		        sudokuCell.Focus();
+	    }
 
         void cell_keyPressed(object sender, KeyPressEventArgs e)
         {
-            var cell = activeCell;
+            var cell = (SudokuCell)sender;
 
-            // Do nothing if the cell is locked
             if (cell.IsLocked)
                 return;
 
             if (e.KeyChar == '\b' && cell.Text.Length >= 1)
                 cell.Text = cell.Text.Remove(cell.Text.Length - 1);
-            else if (e.KeyChar >= '1' && e.KeyChar <= '9')
+            else if (e.KeyChar is >= '1' and <= '9')
             {
                 var number = int.Parse(e.KeyChar.ToString()).ToString();
 
@@ -87,41 +85,59 @@ namespace Sudoku
                     cell.Text += number;
             }
             
-            if (cell.Text.Length <= 1)
-            {
-                cell.Font = new Font(SystemFonts.DefaultFont.FontFamily, 20);
-                cell.ForeColor = SystemColors.ControlDarkDark;
-            }
-            else if (cell.Text.Length <= 6)
-            {
-                cell.Font = new Font(SystemFonts.DefaultFont.FontFamily, 14, FontStyle.Italic);
-                cell.ForeColor = Color.DarkCyan;
-            }
-            else
-            {
-                cell.Font = new Font(SystemFonts.DefaultFont.FontFamily, 8, FontStyle.Italic);
-                cell.ForeColor = Color.DarkCyan;
-            }
+            UpdateCellStyling(cell);
         }
-        
+
+        void cell_keyDowned(object sender, KeyEventArgs e)
+        {
+	        var cell = (SudokuCell)sender;
+
+	        if (cell.IsLocked)
+		        return;
+
+	        if (e.KeyCode == Keys.Delete && cell.Text.Length >= 1)
+		        cell.Text = cell.Text.Substring(1);
+
+	        UpdateCellStyling(cell);
+        }
+
+        static void UpdateCellStyling(SudokuCell cell)
+        {
+	        if (cell.Text.Length <= 1)
+	        {
+		        cell.Font = new Font(SystemFonts.DefaultFont.FontFamily, 20);
+		        cell.ForeColor = SystemColors.ControlDarkDark;
+	        }
+	        else if (cell.Text.Length <= 6)
+	        {
+		        cell.Font = new Font(SystemFonts.DefaultFont.FontFamily, 14, FontStyle.Italic);
+		        cell.ForeColor = Color.DarkCyan;
+	        }
+	        else
+	        {
+		        cell.Font = new Font(SystemFonts.DefaultFont.FontFamily, 8, FontStyle.Italic);
+		        cell.ForeColor = Color.DarkCyan;
+	        }
+        }
+
         void startNewGame()
         {
             loadValues();
 
             var hintsCount = 0;
 
-            // Assign the hints count based on the 
-            // level player chosen
             if (beginnerLevel.Checked)
-                hintsCount = 55;
+                hintsCount = 57;
             else if (IntermediateLevel.Checked)
-                hintsCount = 43;
+                hintsCount = 44;
             else if (AdvancedLevel.Checked)
                 hintsCount = 20;
 
             showRandomValuesHints(hintsCount);
 
             checkButton.Enabled = true;
+
+            LogWriteLine("New game started", Color.White);
         }
 
         void showRandomValuesHints(int hintsCount)
@@ -230,7 +246,7 @@ namespace Sudoku
 
             foreach (var cell in cells)
             {
-                if (cell.Value == 0)
+                if (string.IsNullOrEmpty(cell.Text))
                 {
                     isFilled = false;
                     break;
@@ -244,7 +260,7 @@ namespace Sudoku
 
             if (!isFilled)
             {
-                MessageBox.Show("Not all fields are filled yet", "Result");
+                ShowMessageBox("Result", "Not all fields are filled yet", Color.Blue);
             }
 			else if (hasError)
             {
@@ -254,7 +270,7 @@ namespace Sudoku
                     deathLinkService.SendDeathLink(deathLink);
                 }
 
-                MessageBox.Show("Wrong inputs", "Result");
+                ShowMessageBox("Result", "Wrong inputs", Color.Blue);
             }
             else
             {
@@ -269,11 +285,11 @@ namespace Sudoku
                         var locationId = missing[Random.Next(0, missing.Count)];
                         session.Locations.ScoutLocationsAsync(true, locationId);
 
-                        MessageBox.Show("Correct, unlocked 1 hint", "Result");
+                        ShowMessageBox("Result", "Correct, unlocked 1 hint", Color.Blue);
                     }
                     else
                     {
-                        MessageBox.Show("Correct, no missing locations left to hint for", "Result");
+                        ShowMessageBox("Result", "Correct, no missing locations left to hint for", Color.DarkBlue);
                     }
                 }
 
@@ -301,7 +317,10 @@ namespace Sudoku
                 ConnectButton.Text = "Connect";
                 UserText.Enabled = true;
                 ServerText.Enabled = true;
-                APLog.Clear();
+
+                LogWriteLine("Disconnected", Color.Red);
+
+                return;
             }
 
             var serverUri = ServerText.Text;
@@ -322,10 +341,12 @@ namespace Sudoku
 
                 if (!result.Successful)
                 {
-                    MessageBox.Show(string.Join(',', ((LoginFailure)result).Errors), "Login Failed");
+                    ShowMessageBox("Login Failed", string.Join(',', ((LoginFailure)result).Errors), Color.Red);
                 }
                 else
                 {
+	                LogWriteLine("Connected", Color.Green);
+
                     ConnectButton.Text = "Disconnect";
                     UserText.Enabled = false;
                     ServerText.Enabled = false;
@@ -334,7 +355,7 @@ namespace Sudoku
                     deathLinkService.OnDeathLinkReceived += (deathLink) =>
                     {
                         startNewGame();
-                        MessageBox.Show($"DeathLink recieved from: {deathLink.Source}, reason: {deathLink.Cause}", "DeathLink");
+                        ShowMessageBox("DeathLink", $"DeathLink recieved from: {deathLink.Source}, reason: {deathLink.Cause}", Color.DarkRed);
                     };
                     
                     DeathLinkCheckBox_CheckedChanged(sender, e);
@@ -342,7 +363,7 @@ namespace Sudoku
             }
             catch (Exception exception)
             {
-                MessageBox.Show(exception.Message);
+	            ShowMessageBox("ERROR", exception.Message, Color.Red);
             }
         }
 
@@ -354,13 +375,13 @@ namespace Sudoku
             Invoke(() =>
             {
                 foreach (var part in hintMessage.Parts)
-                    AddToLog(part.Text, part.Color);
+                    LogWrite(part.Text, part.Color);
 
-                APLog.Text += Environment.NewLine;
+                APLog.AppendText(Environment.NewLine);
             });
         }
 
-        public void AddToLog(string text, Color color)
+        void LogWrite(string text, Color color)
         {
             APLog.SelectionStart = APLog.TextLength;
             APLog.SelectionLength = 0;
@@ -368,7 +389,44 @@ namespace Sudoku
             APLog.SelectionColor = color;
             APLog.AppendText(text);
             APLog.SelectionColor = APLog.ForeColor;
+
+            /*APLog.SuspendLayout();
+            APLog.SelectionColor = color;
+            APLog.AppendText(text);
+            APLog.ScrollToCaret();
+            APLog.ResumeLayout();*/
+
+            //APLog.SuspendLayout();
+
+            /*var start = APLog.TextLength;
+
+            //APLog.SelectionLength = 0;
+            APLog.AppendText(text);
+
+            //APLog.SelectionStart = start;
+            //APLog.SelectionLength = APLog.TextLength - start;
+
+            APLog.Select(start, text.Length);
+            APLog.SelectionColor = color;
+
+            APLog.Select(2, 5);
+            APLog.SelectionColor = Color.Red;
+            APLog.SelectionBackColor = Color.Yellow;
+
+            //APLog.ResumeLayout();*/
         }
+
+        void LogWriteLine(string text, Color color)
+        {
+	        LogWrite(text, color);
+	        APLog.AppendText(Environment.NewLine);
+        }
+
+        void ShowMessageBox(string title, string message, Color color)
+        {
+	        LogWriteLine(message, color);
+	        MessageBox.Show(message, title);
+	    }
 
         void DeathLinkCheckBox_CheckedChanged(object sender, EventArgs e)
         {

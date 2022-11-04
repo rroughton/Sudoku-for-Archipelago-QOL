@@ -3,7 +3,7 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <OutputType>WinExe</OutputType>
 	<PublishSingleFile>true</PublishSingleFile> 
-    <SelfContained>true</SelfContained>
+    <SelfContained>false</SelfContained>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <UseWindowsForms>true</UseWindowsForms>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
@@ -11,6 +11,7 @@
 	<PublishReadyToRun>false</PublishReadyToRun>
 	<RuntimeIdentifier>win-x64</RuntimeIdentifier>
 	<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+	<StartupObject>Sudoku.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Compile Update="SudokuCell.cs" />
