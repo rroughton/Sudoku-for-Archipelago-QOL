@@ -19,6 +19,8 @@ namespace Sudoku
         ArchipelagoSession session;
         DeathLinkService deathLinkService;
 
+        SudokuCell activeCell;
+
         public Form1()
         {
             AutoScaleMode = AutoScaleMode.None;
@@ -60,8 +62,6 @@ namespace Sudoku
                 }
             }
         }
-
-        SudokuCell activeCell;
 
         void Cell_MouseEnter(object sender, EventArgs e)
         {
@@ -246,8 +246,7 @@ namespace Sudoku
             {
                 MessageBox.Show("Not all fields are filled yet", "Result");
             }
-
-            if (hasError)
+			else if (hasError)
             {
                 if (deathLinkService != null && DeathLinkCheckBox.Checked)
                 {
