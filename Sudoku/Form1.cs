@@ -389,31 +389,6 @@ namespace Sudoku
             APLog.SelectionColor = color;
             APLog.AppendText(text);
             APLog.SelectionColor = APLog.ForeColor;
-
-            /*APLog.SuspendLayout();
-            APLog.SelectionColor = color;
-            APLog.AppendText(text);
-            APLog.ScrollToCaret();
-            APLog.ResumeLayout();*/
-
-            //APLog.SuspendLayout();
-
-            /*var start = APLog.TextLength;
-
-            //APLog.SelectionLength = 0;
-            APLog.AppendText(text);
-
-            //APLog.SelectionStart = start;
-            //APLog.SelectionLength = APLog.TextLength - start;
-
-            APLog.Select(start, text.Length);
-            APLog.SelectionColor = color;
-
-            APLog.Select(2, 5);
-            APLog.SelectionColor = Color.Red;
-            APLog.SelectionBackColor = Color.Yellow;
-
-            //APLog.ResumeLayout();*/
         }
 
         void LogWriteLine(string text, Color color)
