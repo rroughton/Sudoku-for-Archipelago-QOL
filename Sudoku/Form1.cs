@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -7,6 +6,7 @@ using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Archipelago.MultiClient.Net.Enums;
 using Archipelago.MultiClient.Net.Helpers;
+using SudokuSpice.RuleBased;
 
 namespace Sudoku
 {
@@ -122,123 +122,56 @@ namespace Sudoku
 
         void startNewGame()
         {
-            loadValues();
+	        var hintsCount = 0;
 
-            var hintsCount = 0;
+	        if (beginnerLevel.Checked)
+		        hintsCount = 50;
+	        else if (IntermediateLevel.Checked)
+		        hintsCount = 35;
+	        else if (AdvancedLevel.Checked)
+		        hintsCount = 21;
 
-            if (beginnerLevel.Checked)
-                hintsCount = 57;
-            else if (IntermediateLevel.Checked)
-                hintsCount = 44;
-            else if (AdvancedLevel.Checked)
-                hintsCount = 20;
+            var generator = new StandardPuzzleGenerator();
+	        var puzzle = generator.Generate(9, hintsCount, TimeSpan.FromSeconds(5));
 
-            showRandomValuesHints(hintsCount);
+            fillField(puzzle);
 
             checkButton.Enabled = true;
 
             LogWriteLine("New game started", Color.White);
         }
 
-        void showRandomValuesHints(int hintsCount)
+        void fillField(PuzzleWithPossibleValues puzzle)
         {
-            // Show value in radom cells
-            // The hints count is based on the level player choose
-            for (int i = 0; i < hintsCount; i++)
-            {
-                var rX = Random.Next(9);
-                var rY = Random.Next(9);
-
-                // Style the hint cells differently and
-                // lock the cell so that player can't edit the value
-                cells[rX, rY].Text = cells[rX, rY].Value.ToString();
-                cells[rX, rY].ForeColor = Color.Black;
-                cells[rX, rY].IsLocked = true;
-            }
-        }
-
-        void loadValues()
-        {
-            // Clear the values in each cells
-            foreach (var cell in cells)
-            {
-                cell.Value = 0;
-                cell.Clear();
-                cell.Font = new Font(SystemFonts.DefaultFont.FontFamily, 20);
-                cell.ForeColor = SystemColors.ControlDarkDark;
-            }
-
-            // This method will be called recursively 
-            // until it finds suitable values for each cells
-            findValueForNextCell(0, -1);
-        }
-
-        bool findValueForNextCell(int i, int j)
-        {
-            // Increment the i and j values to move to the next cell
-            // and if the columsn ends move to the next row
-            if (++j > 8)
-            {
-                j = 0;
-
-                // Exit if the line ends
-                if (++i > 8)
-                    return true;
-            }
-
-            int value;
-            var numsLeft = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-
-            // Find a random and valid number for the cell and go to the next cell 
-            // and check if it can be allocated with another random and valid number
-            do
-            {
-                // If there is not numbers left in the list to try next, 
-                // return to the previous cell and allocate it with a different number
-                if (numsLeft.Count < 1)
-                {
-                    cells[i, j].Value = 0;
-                    return false;
-                }
-
-                // Take a random number from the numbers left in the list
-                value = numsLeft[Random.Next(0, numsLeft.Count)];
-                cells[i, j].Value = value;
-
-                // Remove the allocated value from the list
-                numsLeft.Remove(value);
-            }
-            while (!isValidNumber(value, i, j) || !findValueForNextCell(i, j));
+	        var solver = StandardPuzzles.CreateSolver();
+	        var solved = solver.Solve(puzzle);
             
-            return true;
-        }
+            for (int x = 0; x < 9; x++)
+	        {
+		        for (int y = 0; y < 9; y++)
+		        {
+			        var cell = cells[x, y];
+			        int? generatedValue = puzzle[x, y];
 
-        bool isValidNumber(int value, int x, int y)
-        {
-            for (int i = 0; i < 9; i++)
-            {
-                // Check all the cells in vertical direction
-                if (i != y && cells[x, i].Value == value)
-                    return false;
+			        cell.Value = solved[x, y].Value;
+                    cell.Font = new Font(SystemFonts.DefaultFont.FontFamily, 20);
 
-                // Check all the cells in horizontal direction
-                if (i != x && cells[i, y].Value == value)
-                    return false;
-            }
-            
-            // Check all the cells in the specific block
-            for (int i = x - (x % 3); i < x - (x % 3) + 3; i++)
-            {
-                for (int j = y - (y % 3); j < y - (y % 3) + 3; j++)
-                {
-                    if (i != x && j != y && cells[i, j].Value == value)
-                        return false;
+                    if (generatedValue.HasValue)
+			        {
+				        cell.Text = generatedValue.Value.ToString();
+                        cell.ForeColor = Color.Black;
+                        cell.IsLocked = true;
+			        }
+			        else
+                    {
+	                    cell.Text = "";
+                        cell.ForeColor = SystemColors.ControlDarkDark;
+				        cell.IsLocked = false;
+                    }
                 }
-            }
-
-            return true;
+	        }
         }
-        
+
         void checkButton_Click(object sender, EventArgs e)
         {
             bool hasError = false;
@@ -389,12 +322,16 @@ namespace Sudoku
             APLog.SelectionColor = color;
             APLog.AppendText(text);
             APLog.SelectionColor = APLog.ForeColor;
+
+            APLog.ScrollToCaret();
         }
 
         void LogWriteLine(string text, Color color)
         {
 	        LogWrite(text, color);
 	        APLog.AppendText(Environment.NewLine);
+
+	        APLog.ScrollToCaret();
         }
 
         void ShowMessageBox(string title, string message, Color color)
