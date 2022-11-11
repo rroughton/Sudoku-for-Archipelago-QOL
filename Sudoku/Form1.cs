@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -6,7 +7,7 @@ using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Archipelago.MultiClient.Net.Enums;
 using Archipelago.MultiClient.Net.Helpers;
-using SudokuSpice.RuleBased;
+using SudokuLibrary;
 
 namespace Sudoku
 {
@@ -15,7 +16,7 @@ namespace Sudoku
         const int CellSize = 75;
 
         static readonly Random Random = new();
-        
+
         ArchipelagoSession session;
         DeathLinkService deathLinkService;
 
@@ -28,7 +29,7 @@ namespace Sudoku
             MaximizeBox = false;
 
             InitializeComponent();
-            
+
             createCells();
 
             startNewGame();
@@ -64,9 +65,9 @@ namespace Sudoku
 
         void Cell_MouseEnter(object sender, EventArgs e)
         {
-	        if (sender is SudokuCell sudokuCell && !UserText.Focused && !ServerText.Focused)
-		        sudokuCell.Focus();
-	    }
+            if (sender is SudokuCell sudokuCell && !UserText.Focused && !ServerText.Focused)
+                sudokuCell.Focus();
+        }
 
         void cell_keyPressed(object sender, KeyPressEventArgs e)
         {
@@ -84,92 +85,141 @@ namespace Sudoku
                 if (!cell.Text.Contains(number))
                     cell.Text += number;
             }
-            
+
             UpdateCellStyling(cell);
         }
 
         void cell_keyDowned(object sender, KeyEventArgs e)
         {
-	        var cell = (SudokuCell)sender;
+            var cell = (SudokuCell)sender;
 
-	        if (cell.IsLocked)
-		        return;
+            if (cell.IsLocked)
+                return;
 
-	        if (e.KeyCode == Keys.Delete && cell.Text.Length >= 1)
-		        cell.Text = cell.Text.Substring(1);
+            if (e.KeyCode == Keys.Delete && cell.Text.Length >= 1)
+                cell.Text = cell.Text.Substring(1);
 
-	        UpdateCellStyling(cell);
+            UpdateCellStyling(cell);
         }
 
         static void UpdateCellStyling(SudokuCell cell)
         {
-	        if (cell.Text.Length <= 1)
-	        {
-		        cell.Font = new Font(SystemFonts.DefaultFont.FontFamily, 20);
-		        cell.ForeColor = SystemColors.ControlDarkDark;
-	        }
-	        else if (cell.Text.Length <= 6)
-	        {
-		        cell.Font = new Font(SystemFonts.DefaultFont.FontFamily, 14, FontStyle.Italic);
-		        cell.ForeColor = Color.DarkCyan;
-	        }
-	        else
-	        {
-		        cell.Font = new Font(SystemFonts.DefaultFont.FontFamily, 8, FontStyle.Italic);
-		        cell.ForeColor = Color.DarkCyan;
-	        }
+            if (cell.Text.Length <= 1)
+            {
+                cell.Font = new Font(SystemFonts.DefaultFont.FontFamily, 20);
+                cell.ForeColor = SystemColors.ControlDarkDark;
+            }
+            else if (cell.Text.Length <= 6)
+            {
+                cell.Font = new Font(SystemFonts.DefaultFont.FontFamily, 14, FontStyle.Italic);
+                cell.ForeColor = Color.DarkCyan;
+            }
+            else
+            {
+                cell.Font = new Font(SystemFonts.DefaultFont.FontFamily, 8, FontStyle.Italic);
+                cell.ForeColor = Color.DarkCyan;
+            }
         }
 
         void startNewGame()
         {
-	        var hintsCount = 0;
+            var hintsCount = 0;
 
-	        if (beginnerLevel.Checked)
-		        hintsCount = 50;
-	        else if (IntermediateLevel.Checked)
-		        hintsCount = 35;
-	        else if (AdvancedLevel.Checked)
-		        hintsCount = 21;
+            if (beginnerLevel.Checked)
+                hintsCount = 50;
+            else if (IntermediateLevel.Checked)
+                hintsCount = 35;
+            else if (AdvancedLevel.Checked)
+                hintsCount = 21;
 
-            var generator = new StandardPuzzleGenerator();
-	        var puzzle = generator.Generate(9, hintsCount, TimeSpan.FromSeconds(5));
+            var lib = new SudokuLib();
+            var puzzle = lib.Generate();
+            var solved = Copy(puzzle);
 
-            fillField(puzzle);
+            lib.Solve(solved);
+
+            var fieldsToShow = SelectFieldsToReveal(puzzle, hintsCount);
+
+            fillField(solved, fieldsToShow);
 
             checkButton.Enabled = true;
 
             LogWriteLine("New game started", Color.White);
         }
 
-        void fillField(PuzzleWithPossibleValues puzzle)
+        void fillField(int[,] solved, bool[,] fieldsToShow)
         {
-	        var solver = StandardPuzzles.CreateSolver();
-	        var solved = solver.Solve(puzzle);
-            
             for (int x = 0; x < 9; x++)
-	        {
-		        for (int y = 0; y < 9; y++)
-		        {
-			        var cell = cells[x, y];
-			        int? generatedValue = puzzle[x, y];
+            {
+                for (int y = 0; y < 9; y++)
+                {
+                    var cell = cells[y, x];
 
-			        cell.Value = solved[x, y].Value;
+                    cell.Value = solved[x, y];
                     cell.Font = new Font(SystemFonts.DefaultFont.FontFamily, 20);
 
-                    if (generatedValue.HasValue)
-			        {
-				        cell.Text = generatedValue.Value.ToString();
+                    if (fieldsToShow[x, y])
+                    {
+                        cell.Text = cell.Value.ToString();
                         cell.ForeColor = Color.Black;
                         cell.IsLocked = true;
-			        }
-			        else
+                    }
+                    else
                     {
-	                    cell.Text = "";
+                        cell.Text = "";
                         cell.ForeColor = SystemColors.ControlDarkDark;
-				        cell.IsLocked = false;
+                        cell.IsLocked = false;
                     }
                 }
-	        }
+            }
+        }
+
+        static bool[,] SelectFieldsToReveal(int[,] puzzle, int hintCount)
+        {
+            var revealedCells = 0;
+            var cellsToShow = new bool[9,9];
+
+            for (int x = 0; x < 9; x++)
+            {
+                for (int y = 0; y < 9; y++)
+                {
+                    if (puzzle[x, y] != 0)
+                    {
+                        cellsToShow[x, y] = true;
+                        revealedCells++;
+                    }
+                    else
+                    {
+                        cellsToShow[x, y] = false;
+                    }
+                }
+            }
+
+            while (revealedCells < hintCount)
+            {
+                int x = Random.Next(0, 9);
+                int y = Random.Next(0, 9);
+
+                if (cellsToShow[x, y]) continue;
+
+                cellsToShow[x, y] = true;
+                revealedCells++;
+            }
+
+            return cellsToShow;
+        }
+
+        public static T[,] Copy<T>(T[,] array)
+        {
+            int width = array.GetLength(0);
+            int height = array.GetLength(1);
+            T[,] copy = new T[width, height];
+
+            for (int x = 0; x < width; x++)
+                for (int y = 0; y < height; y++)
+                    copy[x, y] = array[x, y];
+
+            return copy;
         }
 
         void checkButton_Click(object sender, EventArgs e)
@@ -195,7 +245,7 @@ namespace Sudoku
             {
                 ShowMessageBox("Result", "Not all fields are filled yet", Color.Blue);
             }
-			else if (hasError)
+            else if (hasError)
             {
                 if (deathLinkService != null && DeathLinkCheckBox.Checked)
                 {
@@ -278,7 +328,7 @@ namespace Sudoku
                 }
                 else
                 {
-	                LogWriteLine("Connected", Color.Green);
+                    LogWriteLine("Connected", Color.Green);
 
                     ConnectButton.Text = "Disconnect";
                     UserText.Enabled = false;
@@ -290,13 +340,13 @@ namespace Sudoku
                         startNewGame();
                         ShowMessageBox("DeathLink", $"DeathLink recieved from: {deathLink.Source}, reason: {deathLink.Cause}", Color.DarkRed);
                     };
-                    
+
                     DeathLinkCheckBox_CheckedChanged(sender, e);
                 }
             }
             catch (Exception exception)
             {
-	            ShowMessageBox("ERROR", exception.Message, Color.Red);
+                ShowMessageBox("ERROR", exception.Message, Color.Red);
             }
         }
 
@@ -328,17 +378,17 @@ namespace Sudoku
 
         void LogWriteLine(string text, Color color)
         {
-	        LogWrite(text, color);
-	        APLog.AppendText(Environment.NewLine);
+            LogWrite(text, color);
+            APLog.AppendText(Environment.NewLine);
 
-	        APLog.ScrollToCaret();
+            APLog.ScrollToCaret();
         }
 
         void ShowMessageBox(string title, string message, Color color)
         {
-	        LogWriteLine(message, color);
-	        MessageBox.Show(message, title);
-	    }
+            LogWriteLine(message, color);
+            MessageBox.Show(message, title);
+        }
 
         void DeathLinkCheckBox_CheckedChanged(object sender, EventArgs e)
         {
