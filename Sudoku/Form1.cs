@@ -125,14 +125,14 @@ namespace Sudoku
 	        var hintsCount = 0;
 
 	        if (beginnerLevel.Checked)
-		        hintsCount = 50;
+		        hintsCount = 48;
 	        else if (IntermediateLevel.Checked)
 		        hintsCount = 35;
 	        else if (AdvancedLevel.Checked)
-		        hintsCount = 21;
+		        hintsCount = 24;
 
             var generator = new StandardPuzzleGenerator();
-	        var puzzle = generator.Generate(9, hintsCount, TimeSpan.FromSeconds(5));
+	        var puzzle = generator.Generate(9, hintsCount, TimeSpan.Zero);
 
             fillField(puzzle);
 
@@ -151,14 +151,13 @@ namespace Sudoku
 		        for (int y = 0; y < 9; y++)
 		        {
 			        var cell = cells[x, y];
-			        int? generatedValue = puzzle[x, y];
 
 			        cell.Value = solved[x, y].Value;
                     cell.Font = new Font(SystemFonts.DefaultFont.FontFamily, 20);
 
-                    if (generatedValue.HasValue)
+                    if (puzzle[x, y].HasValue)
 			        {
-				        cell.Text = generatedValue.Value.ToString();
+				        cell.Text = cell.Value.ToString();
                         cell.ForeColor = Color.Black;
                         cell.IsLocked = true;
 			        }
