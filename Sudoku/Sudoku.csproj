@@ -3,7 +3,7 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <OutputType>WinExe</OutputType>
 	<PublishSingleFile>true</PublishSingleFile> 
-    <SelfContained>true</SelfContained>
+    <SelfContained>false</SelfContained>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <UseWindowsForms>true</UseWindowsForms>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
@@ -21,6 +21,6 @@
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="SudokuSpice" Version="3.2.2" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-    <PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Windows.Compatibility" Version="7.0.0" />
   </ItemGroup>
 </Project>

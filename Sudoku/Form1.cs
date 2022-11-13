@@ -125,7 +125,7 @@ namespace Sudoku
 	        var hintsCount = 0;
 
 	        if (beginnerLevel.Checked)
-		        hintsCount = 48;
+		        hintsCount = 80;
 	        else if (IntermediateLevel.Checked)
 		        hintsCount = 35;
 	        else if (AdvancedLevel.Checked)
@@ -224,7 +224,10 @@ namespace Sudoku
                         ShowMessageBox("Result", "Correct, no missing locations left to hint for", Color.DarkBlue);
                     }
                 }
-
+                else
+                {
+                    ShowMessageBox("Result", "Correct, no hints are unlocked as you are not connected", Color.Blue);
+                }
             }
         }
 
