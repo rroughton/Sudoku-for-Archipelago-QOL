@@ -125,7 +125,7 @@ namespace Sudoku
 	        var hintsCount = 0;
 
 	        if (beginnerLevel.Checked)
-		        hintsCount = 80;
+		        hintsCount = 48;
 	        else if (IntermediateLevel.Checked)
 		        hintsCount = 35;
 	        else if (AdvancedLevel.Checked)
