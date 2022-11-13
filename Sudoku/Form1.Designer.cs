@@ -152,6 +152,7 @@
             this.ServerText.Name = "ServerText";
             this.ServerText.Size = new System.Drawing.Size(521, 31);
             this.ServerText.TabIndex = 2;
+            this.ServerText.Text = "Archipelago.gg:";
             // 
             // label2
             // 
