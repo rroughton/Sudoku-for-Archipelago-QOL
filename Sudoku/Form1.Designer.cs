@@ -137,7 +137,7 @@
             // APLog
             // 
             this.APLog.AcceptsTab = true;
-            this.APLog.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.APLog.BackColor = System.Drawing.SystemColors.ControlText;
             this.APLog.ForeColor = System.Drawing.Color.White;
             this.APLog.Location = new System.Drawing.Point(11, 695);
             this.APLog.Name = "APLog";
