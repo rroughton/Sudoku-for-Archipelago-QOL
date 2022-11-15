@@ -304,16 +304,30 @@ namespace Sudoku
 
         void MessageLog_OnMessageReceived(LogMessage message)
         {
-            if (message is not HintItemSendLogMessage hintMessage || hintMessage.SendingPlayerSlot != session.ConnectionInfo.Slot)
-                return;
-
-            Invoke(() =>
+            switch (message)
             {
-                foreach (var part in hintMessage.Parts)
-                    LogWrite(part.Text, part.Color);
+                case HintItemSendLogMessage hintMessage when hintMessage.SendingPlayerSlot == session.ConnectionInfo.Slot:
+                    Invoke(() =>
+                    {
+                        foreach (var part in hintMessage.Parts)
+                            LogWrite(part.Text, part.Color);
 
-                APLog.AppendText(Environment.NewLine);
-            });
+                        APLog.AppendText(Environment.NewLine);
+                        APLog.ScrollToCaret();
+                    });
+                    break;
+
+                case ItemSendLogMessage itemMessage when itemMessage.Item.Flags == ItemFlags.Advancement:
+                    Invoke(() =>
+                    {
+                        foreach (var part in itemMessage.Parts)
+                            LogWrite(part.Text, part.Color);
+
+                        APLog.AppendText(Environment.NewLine);
+                        APLog.ScrollToCaret();
+                    });
+                    break;
+            }
         }
 
         void LogWrite(string text, Color color)
