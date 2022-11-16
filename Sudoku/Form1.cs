@@ -317,7 +317,8 @@ namespace Sudoku
                     });
                     break;
 
-                case ItemSendLogMessage itemMessage when itemMessage.Item.Flags == ItemFlags.Advancement:
+                case ItemSendLogMessage itemMessage when itemMessage.Item.Flags == ItemFlags.Advancement 
+                                                         && itemMessage.ReceivingPlayerSlot == session.ConnectionInfo.Slot:
                     Invoke(() =>
                     {
                         foreach (var part in itemMessage.Parts)
