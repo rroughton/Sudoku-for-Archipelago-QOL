@@ -310,7 +310,7 @@ namespace Sudoku
                     Invoke(() =>
                     {
                         foreach (var part in hintMessage.Parts)
-                            LogWrite(part.Text, part.Color);
+                            LogWrite(part.Text, ToSystemColor(part.Color));
 
                         APLog.AppendText(Environment.NewLine);
                         APLog.ScrollToCaret();
@@ -321,7 +321,7 @@ namespace Sudoku
                     Invoke(() =>
                     {
                         foreach (var part in itemMessage.Parts)
-                            LogWrite(part.Text, part.Color);
+                            LogWrite(part.Text, ToSystemColor(part.Color));
 
                         APLog.AppendText(Environment.NewLine);
                         APLog.ScrollToCaret();
@@ -329,6 +329,9 @@ namespace Sudoku
                     break;
             }
         }
+
+        static Color ToSystemColor(Archipelago.MultiClient.Net.Models.Color c) =>
+            Color.FromArgb(255, c.R, c.G, c.B);
 
         void LogWrite(string text, Color color)
         {
