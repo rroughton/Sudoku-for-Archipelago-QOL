@@ -13,6 +13,7 @@ namespace Sudoku
     public partial class Form1 : Form
     {
         const int CellSize = 75;
+        const string PreviouslyHintedLocations = "BkHinted";
 
         static readonly Random Random = new();
         
@@ -32,6 +33,10 @@ namespace Sudoku
             createCells();
 
             startNewGame();
+
+#if DEBUG
+            ServerText.Text = "localhost";
+#endif
         }
 
         void createCells()
@@ -127,8 +132,12 @@ namespace Sudoku
 	        if (beginnerLevel.Checked)
 		        hintsCount = 48;
 	        else if (IntermediateLevel.Checked)
+#if DEBUG
+                hintsCount = 80;
+#else
 		        hintsCount = 35;
-	        else if (AdvancedLevel.Checked)
+#endif
+            else if (AdvancedLevel.Checked)
 		        hintsCount = 24;
 
             var generator = new StandardPuzzleGenerator();
@@ -211,17 +220,21 @@ namespace Sudoku
                     checkButton.Enabled = false;
 
                     var missing = session.Locations.AllMissingLocations;
+                    var alreadyHinted = session.DataStorage[Scope.Slot, PreviouslyHintedLocations].To<long[]>();
 
-                    if (missing.Any())
+                    var availableForHinting = missing.Except(alreadyHinted).ToArray();
+
+                    if (availableForHinting.Any())
                     {
-                        var locationId = missing[Random.Next(0, missing.Count)];
-                        session.Locations.ScoutLocationsAsync(true, locationId);
+                        var locationId = availableForHinting[Random.Next(0, availableForHinting.Length)];
 
+                        session.Locations.ScoutLocationsAsync(true, locationId);
+                        
                         ShowMessageBox("Result", "Correct, unlocked 1 hint", Color.Blue);
                     }
                     else
                     {
-                        ShowMessageBox("Result", "Correct, no missing locations left to hint for", Color.DarkBlue);
+                        ShowMessageBox("Result", "Correct, no remaining locations left to hint for", Color.DarkBlue);
                     }
                 }
                 else
@@ -260,17 +273,11 @@ namespace Sudoku
 
             var serverUri = ServerText.Text;
 
-            if (!serverUri.Contains(':'))
-                serverUri += ":38281";
-            if (serverUri.EndsWith(':'))
-                serverUri += "38281";
-            if (!serverUri.StartsWith("ws://"))
-                serverUri = "ws://" + serverUri;
-
             try
             {
-                session = ArchipelagoSessionFactory.CreateSession(new Uri(serverUri));
+                session = ArchipelagoSessionFactory.CreateSession(serverUri);
                 session.MessageLog.OnMessageReceived += MessageLog_OnMessageReceived;
+
                 var result = session.TryConnectAndLogin("", UserText.Text, ItemsHandlingFlags.NoItems,
                     tags: new[] { "BK_Sudoku", "TextOnly" });
 
@@ -294,6 +301,8 @@ namespace Sudoku
                     };
                     
                     DeathLinkCheckBox_CheckedChanged(sender, e);
+
+                    session.DataStorage[Scope.Slot, PreviouslyHintedLocations].Initialize(Array.Empty<long>());
                 }
             }
             catch (Exception exception)
@@ -315,6 +324,13 @@ namespace Sudoku
                         APLog.AppendText(Environment.NewLine);
                         APLog.ScrollToCaret();
                     });
+
+                    session.DataStorage[Scope.Slot, PreviouslyHintedLocations].GetAsync<long[]>()
+                        .ContinueWith(t =>
+                        {
+                            if (!t.Result.Contains(hintMessage.Item.Location))
+                                session.DataStorage[Scope.Slot, PreviouslyHintedLocations] += new[] { hintMessage.Item.Location };
+                        });
                     break;
 
                 case ItemSendLogMessage itemMessage when itemMessage.Item.Flags == ItemFlags.Advancement 
