@@ -220,7 +220,9 @@ namespace Sudoku
                     checkButton.Enabled = false;
 
                     var missing = session.Locations.AllMissingLocations;
-                    var alreadyHinted = session.DataStorage[Scope.Slot, PreviouslyHintedLocations].To<long[]>();
+                    var alreadyHinted = session.DataStorage.GetHints()
+                        .Where(h => !h.Found && h.ReceivingPlayer == session.ConnectionInfo.Slot)
+                        .Select(h => h.LocationId);
 
                     var availableForHinting = missing.Except(alreadyHinted).ToArray();
 
@@ -279,7 +281,7 @@ namespace Sudoku
                 session.MessageLog.OnMessageReceived += MessageLog_OnMessageReceived;
 
                 var result = session.TryConnectAndLogin("", UserText.Text, ItemsHandlingFlags.NoItems,
-                    tags: new[] { "BK_Sudoku", "TextOnly" });
+                    tags: new[] { "BK_Sudoku", "TextOnly" }, requestSlotData: false);
 
                 if (!result.Successful)
                 {
@@ -324,13 +326,6 @@ namespace Sudoku
                         APLog.AppendText(Environment.NewLine);
                         APLog.ScrollToCaret();
                     });
-
-                    session.DataStorage[Scope.Slot, PreviouslyHintedLocations].GetAsync<long[]>()
-                        .ContinueWith(t =>
-                        {
-                            if (!t.Result.Contains(hintMessage.Item.Location))
-                                session.DataStorage[Scope.Slot, PreviouslyHintedLocations] += new[] { hintMessage.Item.Location };
-                        });
                     break;
 
                 case ItemSendLogMessage itemMessage when itemMessage.Item.Flags == ItemFlags.Advancement 

@@ -3,7 +3,7 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <OutputType>WinExe</OutputType>
 	<PublishSingleFile>true</PublishSingleFile> 
-    <SelfContained>true</SelfContained>
+    <SelfContained>false</SelfContained>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <UseWindowsForms>true</UseWindowsForms>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
@@ -17,7 +17,7 @@
     <Compile Update="SudokuCell.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Archipelago.MultiClient.Net" Version="4.1.2" />
+    <PackageReference Include="Archipelago.MultiClient.Net" Version="4.2.1" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="SudokuSpice" Version="3.2.2" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
