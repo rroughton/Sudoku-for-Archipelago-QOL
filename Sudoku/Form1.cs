@@ -221,7 +221,7 @@ namespace Sudoku
 
                     var missing = session.Locations.AllMissingLocations;
                     var alreadyHinted = session.DataStorage.GetHints()
-                        .Where(h => !h.Found && h.ReceivingPlayer == session.ConnectionInfo.Slot)
+                        .Where(h => h.FindingPlayer == session.ConnectionInfo.Slot)
                         .Select(h => h.LocationId);
 
                     var availableForHinting = missing.Except(alreadyHinted).ToArray();
@@ -289,6 +289,15 @@ namespace Sudoku
                 }
                 else
                 {
+                    if (session.RoomState.Version < new Version(0, 3, 7))
+                    {
+                        session.Socket.DisconnectAsync();
+
+                        ShowMessageBox("Version mismatch", "Server out of date, this version of BK Sudoku can only connect to servers of 0.3.7 or higher", Color.Red);
+
+                        return;
+                    }
+                    
 	                LogWriteLine("Connected", Color.Green);
 
                     ConnectButton.Text = "Disconnect";
