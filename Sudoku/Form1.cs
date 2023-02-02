@@ -13,7 +13,6 @@ namespace Sudoku
     public partial class Form1 : Form
     {
         const int CellSize = 75;
-        const string PreviouslyHintedLocations = "BkHinted";
 
         static readonly Random Random = new();
         
@@ -133,7 +132,7 @@ namespace Sudoku
 		        hintsCount = 48;
 	        else if (IntermediateLevel.Checked)
 #if DEBUG
-                hintsCount = 80;
+                hintsCount = 81;
 #else
 		        hintsCount = 35;
 #endif
@@ -281,7 +280,7 @@ namespace Sudoku
                 session = ArchipelagoSessionFactory.CreateSession(serverUri);
                 session.MessageLog.OnMessageReceived += MessageLog_OnMessageReceived;
 
-                var result = session.TryConnectAndLogin("", UserText.Text, ItemsHandlingFlags.NoItems, password: PasswordText.Text,
+                var result = session.TryConnectAndLogin("", UserText.Text, ItemsHandlingFlags.IncludeOwnItems, password: PasswordText.Text,
                     tags: new[] { "BK_Sudoku", "TextOnly" }, requestSlotData: false);
 
                 if (!result.Successful)
@@ -314,8 +313,6 @@ namespace Sudoku
                     };
                     
                     DeathLinkCheckBox_CheckedChanged(sender, e);
-
-                    session.DataStorage[Scope.Slot, PreviouslyHintedLocations].Initialize(Array.Empty<long>());
                 }
             }
             catch (Exception exception)

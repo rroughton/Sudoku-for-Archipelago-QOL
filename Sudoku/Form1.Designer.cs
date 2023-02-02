@@ -150,7 +150,7 @@
             // 
             // ServerText
             // 
-            this.ServerText.Location = new System.Drawing.Point(693, 539);
+            this.ServerText.Location = new System.Drawing.Point(693, 584);
             this.ServerText.Name = "ServerText";
             this.ServerText.Size = new System.Drawing.Size(521, 31);
             this.ServerText.TabIndex = 2;
@@ -160,7 +160,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label2.Location = new System.Drawing.Point(693, 506);
+            this.label2.Location = new System.Drawing.Point(693, 551);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(76, 30);
             this.label2.TabIndex = 7;
@@ -170,7 +170,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label3.Location = new System.Drawing.Point(693, 439);
+            this.label3.Location = new System.Drawing.Point(693, 417);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(57, 30);
             this.label3.TabIndex = 9;
@@ -178,7 +178,7 @@
             // 
             // UserText
             // 
-            this.UserText.Location = new System.Drawing.Point(693, 472);
+            this.UserText.Location = new System.Drawing.Point(693, 450);
             this.UserText.Name = "UserText";
             this.UserText.Size = new System.Drawing.Size(521, 31);
             this.UserText.TabIndex = 1;
@@ -210,25 +210,27 @@
             // 
             this.lblPassword.AutoSize = true;
             this.lblPassword.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.ServerText.Location = new System.Drawing.Point(693, 584);
+            this.lblPassword.Location = new System.Drawing.Point(693, 484);
             this.lblPassword.Name = "lblPassword";
-            this.lblPassword.Size = new System.Drawing.Size(70, 20);
-            this.lblPassword.TabIndex = 102;
+            this.lblPassword.Size = new System.Drawing.Size(103, 30);
+            this.lblPassword.TabIndex = 101;
             this.lblPassword.Text = "Password";
             // 
             // PasswordText
             // 
-            this.ServerText.Location = new System.Drawing.Point(693, 584);
+            this.PasswordText.Location = new System.Drawing.Point(693, 517);
             this.PasswordText.Name = "PasswordText";
             this.PasswordText.PasswordChar = '*';
-            this.ServerText.Size = new System.Drawing.Size(521, 31);
-            this.PasswordText.TabIndex = 101;
+            this.PasswordText.Size = new System.Drawing.Size(521, 31);
+            this.PasswordText.TabIndex = 102;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1226, 957);
+            this.Controls.Add(this.PasswordText);
+            this.Controls.Add(this.lblPassword);
             this.Controls.Add(this.DeathLinkCheckBox);
             this.Controls.Add(this.ConnectButton);
             this.Controls.Add(this.label3);
@@ -244,7 +246,6 @@
             this.Controls.Add(this.checkButton);
             this.Controls.Add(this.newGameButton);
             this.Controls.Add(this.panel1);
-            this.Controls.Add(this.lblPassword);
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "Form1";
             this.Text = "Sudoku";
