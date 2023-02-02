@@ -267,6 +267,7 @@ namespace Sudoku
                 ConnectButton.Text = "Connect";
                 UserText.Enabled = true;
                 ServerText.Enabled = true;
+                PasswordText.Enabled = true;
 
                 LogWriteLine("Disconnected", Color.Red);
 
@@ -280,7 +281,7 @@ namespace Sudoku
                 session = ArchipelagoSessionFactory.CreateSession(serverUri);
                 session.MessageLog.OnMessageReceived += MessageLog_OnMessageReceived;
 
-                var result = session.TryConnectAndLogin("", UserText.Text, ItemsHandlingFlags.NoItems,
+                var result = session.TryConnectAndLogin("", UserText.Text, ItemsHandlingFlags.NoItems, password: PasswordText.Text,
                     tags: new[] { "BK_Sudoku", "TextOnly" }, requestSlotData: false);
 
                 if (!result.Successful)
@@ -303,6 +304,7 @@ namespace Sudoku
                     ConnectButton.Text = "Disconnect";
                     UserText.Enabled = false;
                     ServerText.Enabled = false;
+                    PasswordText.Enabled = false;
 
                     deathLinkService = session.CreateDeathLinkService();
                     deathLinkService.OnDeathLinkReceived += (deathLink) =>
