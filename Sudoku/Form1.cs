@@ -5,7 +5,7 @@ using System.Windows.Forms;
 using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Archipelago.MultiClient.Net.Enums;
-using Archipelago.MultiClient.Net.Helpers;
+using Archipelago.MultiClient.Net.MessageLog.Messages;
 using SudokuSpice.RuleBased;
 
 namespace Sudoku
@@ -325,7 +325,7 @@ namespace Sudoku
         {
             switch (message)
             {
-                case HintItemSendLogMessage hintMessage when hintMessage.SendingPlayerSlot == session.ConnectionInfo.Slot:
+                case HintItemSendLogMessage hintMessage when hintMessage.IsRelatedToActivePlayer:
                     Invoke(() =>
                     {
                         foreach (var part in hintMessage.Parts)
@@ -337,7 +337,7 @@ namespace Sudoku
                     break;
 
                 case ItemSendLogMessage itemMessage when itemMessage.Item.Flags == ItemFlags.Advancement 
-                                                         && itemMessage.ReceivingPlayerSlot == session.ConnectionInfo.Slot:
+                                                         && itemMessage.IsReceiverTheActivePlayer:
                     Invoke(() =>
                     {
                         foreach (var part in itemMessage.Parts)
