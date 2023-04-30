@@ -278,6 +278,7 @@ namespace Sudoku
             try
             {
                 session = ArchipelagoSessionFactory.CreateSession(serverUri);
+                session.Socket.ErrorReceived += Socket_ErrorReceived;
                 session.MessageLog.OnMessageReceived += MessageLog_OnMessageReceived;
 
                 var result = session.TryConnectAndLogin("", UserText.Text, ItemsHandlingFlags.IncludeOwnItems, password: PasswordText.Text,
@@ -319,6 +320,12 @@ namespace Sudoku
             {
 	            ShowMessageBox("ERROR", exception.Message, Color.Red);
             }
+        }
+
+        void Socket_ErrorReceived(Exception e, string message)
+        {
+            LogWriteLine($"Socket ERROR {e.Message}", Color.Red);
+            LogWriteLine(e.StackTrace, Color.Red);
         }
 
         void MessageLog_OnMessageReceived(LogMessage message)
