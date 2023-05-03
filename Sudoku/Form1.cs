@@ -281,7 +281,7 @@ namespace Sudoku
                 session.Socket.ErrorReceived += Socket_ErrorReceived;
                 session.MessageLog.OnMessageReceived += MessageLog_OnMessageReceived;
 
-                var result = session.TryConnectAndLogin("", UserText.Text, ItemsHandlingFlags.IncludeOwnItems, password: PasswordText.Text,
+                var result = session.TryConnectAndLogin("", UserText.Text, ItemsHandlingFlags.NoItems, password: PasswordText.Text,
                     tags: new[] { "BK_Sudoku", "TextOnly" }, requestSlotData: false);
 
                 if (!result.Successful)
@@ -310,7 +310,7 @@ namespace Sudoku
                     deathLinkService.OnDeathLinkReceived += (deathLink) =>
                     {
                         startNewGame();
-                        ShowMessageBox("DeathLink", $"DeathLink recieved from: {deathLink.Source}, reason: {deathLink.Cause}", Color.DarkRed);
+                        ShowMessageBox("DeathLink", $"DeathLink received from: {deathLink.Source}, reason: {deathLink.Cause}", Color.DarkRed);
                     };
                     
                     DeathLinkCheckBox_CheckedChanged(sender, e);
