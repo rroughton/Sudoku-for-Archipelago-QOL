@@ -81,7 +81,12 @@ namespace Sudoku
                 return;
 
             if (e.KeyChar == '\b' && cell.Text.Length >= 1)
+            {
                 cell.Text = cell.Text.Remove(cell.Text.Length - 1);
+                if (cell.Text.Length == 1){
+                  useNote = true;
+                }
+            }
             else if (e.KeyChar is >= '1' and <= '9')
             {
                 var number = int.Parse(e.KeyChar.ToString()).ToString();
