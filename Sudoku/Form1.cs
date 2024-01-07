@@ -75,6 +75,7 @@ namespace Sudoku
         void cell_keyPressed(object sender, KeyPressEventArgs e)
         {
             var cell = (SudokuCell)sender;
+            bool useNote = false;
 
             if (cell.IsLocked)
                 return;
@@ -84,12 +85,14 @@ namespace Sudoku
             else if (e.KeyChar is >= '1' and <= '9')
             {
                 var number = int.Parse(e.KeyChar.ToString()).ToString();
-
-                if (!cell.Text.Contains(number))
-                    cell.Text += number;
+                useNote = cell.Text.Contains(number); // if cell already contains number, make it a note
+                if (!useNote)
+                {
+                  cell.Text += number;
+                }
             }
             
-            UpdateCellStyling(cell);
+            UpdateCellStyling(cell, useNote);
         }
 
         void cell_keyDowned(object sender, KeyEventArgs e)
@@ -105,14 +108,14 @@ namespace Sudoku
 	        UpdateCellStyling(cell);
         }
 
-        static void UpdateCellStyling(SudokuCell cell)
+        static void UpdateCellStyling(SudokuCell cell, bool useNote = false)
         {
-	        if (cell.Text.Length <= 1)
+	        if (cell.Text.Length <= 1 && !useNote)
 	        {
 		        cell.Font = new Font(SystemFonts.DefaultFont.FontFamily, 20);
 		        cell.ForeColor = SystemColors.ControlDarkDark;
 	        }
-	        else if (cell.Text.Length <= 6)
+	        else if (cell.Text.Length <= 6 || (cell.Text.Length <= 1 && useNote))
 	        {
 		        cell.Font = new Font(SystemFonts.DefaultFont.FontFamily, 14, FontStyle.Italic);
 		        cell.ForeColor = Color.DarkCyan;
